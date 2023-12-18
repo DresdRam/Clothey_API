@@ -7,12 +7,13 @@ import { jwtConstants } from "./constants/jwt.constants";
 import { UserSignInDto } from "./dto/userSignIn.dto";
 import { User } from "./entity/user.entity";
 import { UserSignUpDto } from "./dto/userSignUp.dto";
+import { UpdateUserDto } from "./dto/updateUser.dto";
 
 @Injectable()
 export class UserService {
 
     constructor(
-        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        @InjectRepository(User) private readonly userRepo: Repository<User>,
         private readonly jwtService: JwtService
     ) { }
 
@@ -24,7 +25,7 @@ export class UserService {
         const last_name: string = user.last_name
         const phone_number: string = user.phone_number
 
-        const userExists = await this.userRepository.createQueryBuilder('u')
+        const userExists = await this.userRepo.createQueryBuilder('u')
             .select()
             .where('u.email = :email', { email: email })
             .getOne()
@@ -35,7 +36,7 @@ export class UserService {
 
         }
 
-        const insertResults = await this.userRepository.createQueryBuilder('u')
+        const insertResults = await this.userRepo.createQueryBuilder('u')
             .insert()
             .into(User)
             .values([
@@ -49,7 +50,7 @@ export class UserService {
 
         const payload = { 
             id: insertResults.raw.insertId,
-            username: username
+            email: email
         }
 
         return {
@@ -62,7 +63,7 @@ export class UserService {
         const email: string = user.email
         const password: string = user.password
 
-        const databaseUser = await this.userRepository.createQueryBuilder('u')
+        const databaseUser = await this.userRepo.createQueryBuilder('u')
             .select()
             .where('u.email = :email', { email: email })
             .getOne()
@@ -110,6 +111,48 @@ export class UserService {
 
     async hashPassword(password: string, salt: number = 12){
         return await hash(password, salt)
+    }
+
+    async updateUserData(body: UpdateUserDto) {
+
+        const userExists = await this.userRepo.createQueryBuilder('u')
+            .select()
+            .where('u.email = :email', { email: body.email })
+            .andWhere('u.id != :user_id', { user_id: body.user_id })
+            .getOne()
+
+        if(userExists){
+
+            throw new HttpException("Email already exists.", HttpStatus.CONFLICT)
+
+        }
+
+        const results = await this.userRepo.createQueryBuilder()
+        .update(User)
+        .set({ 
+            email: body.email,
+            username: body.username,
+            password: body.password,
+            first_name: body.first_name,
+            last_name: body.last_name,
+            phone_number: body.phone_number
+         })
+        .where('id = :user_id', { user_id: body.user_id })
+        .execute()
+
+        if(!results){
+            throw new HttpException("Could not update user data!", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+
+        const payload = { 
+            id: body.user_id,
+            email: body.email
+        }
+
+        return {
+            authentication_token: await this.jwtService.signAsync(payload, { secret: jwtConstants.secret, noTimestamp: true })
+        }
+
     }
 
 }

@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { UserAddress } from "src/model/user_address/entity/userAddress.entity";
+import { UserPayment } from "src/model/user_payment/entity/userPayment.entity";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn } from "typeorm"
 
 @Entity()
 export class User {
@@ -42,8 +44,10 @@ export class User {
     @UpdateDateColumn()
     updated_at: Date;
 
-    // @OneToOne(() => UserRole, (userRole) => userRole.user)
-    // @JoinColumn({ name: 'id' })
-    // userRole: UserRole;
+    @OneToMany(() => UserAddress, address => address.user)
+    addresses: UserAddress[];
+
+    @OneToMany(() => UserPayment, payment => payment.user)
+    payments: UserPayment[];
 
 }

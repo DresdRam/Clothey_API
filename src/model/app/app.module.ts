@@ -3,6 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entity/user.entity';
 import { UserModule } from '../user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GovernorateModule } from '../governorate/governorate.module';
+import { Governorate } from '../governorate/entity/governorate.entity';
+import { UserAddress } from '../user_address/entity/userAddress.entity';
+import { UserAddressModule } from '../user_address/user_address.module';
+import { UserPayment } from '../user_payment/entity/userPayment.entity';
+import { PaymentType } from '../payment_type/entity/paymentType.entity';
+import { PaymentTypeModule } from '../payment_type/payment_type.module';
+import { UserPaymentModule } from '../user_payment/user_payment.module';
 
 @Module({
   imports: [
@@ -21,10 +29,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           password: config.get<string>('DATABASE_PASSWORD'),
           database: config.get<string>('DATABASE_NAME'),
           synchronize: false,
-          entities: [User]
+          entities: [User, UserAddress, UserPayment, PaymentType, Governorate]
         }
       }
     }),
-  UserModule]
+  UserModule, UserAddressModule, UserPaymentModule, PaymentTypeModule, GovernorateModule]
 })
 export class AppModule { }
