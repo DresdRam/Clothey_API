@@ -1,4 +1,4 @@
-import { PaymentType } from "src/model/payment_type/entity/paymentType.entity";
+import { PaymentType } from "src/model/payment_type/entity/payment_type.entity";
 import { User } from "src/model/user/entity/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 

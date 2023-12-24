@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreatePaymentDto } from './dto/createPayment.dto';
+import { CreatePaymentDto } from './dto/create_payment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserPayment } from './entity/userPayment.entity';
+import { UserPayment } from './entity/user_payment.entity';
 import { Repository } from 'typeorm';
 import { User } from '../user/entity/user.entity';
-import { PaymentType } from '../payment_type/entity/paymentType.entity';
-import { UpdatePaymentDto } from './dto/updatePayment.dto';
+import { PaymentType } from '../payment_type/entity/payment_type.entity';
+import { UpdatePaymentDto } from './dto/update_payment.dto';
 
 @Injectable()
 export class UserPaymentService {

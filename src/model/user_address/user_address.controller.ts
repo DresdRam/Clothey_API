@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
 import { UserAddressService } from './user_address.service';
-import { CreateAddressDto } from './dto/createAddress.dto';
-import { UpdateAddressDto } from './dto/updateAddress.dto';
+import { CreateAddressDto } from './dto/create_address.dto';
+import { UpdateAddressDto } from './dto/update_address.dto';
 
 @Controller('addresses')
 export class UserAddressController {

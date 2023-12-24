@@ -2,7 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './model/app/app.module';
 
-const port: number = process.env.PORT || 3026;
+const port: number = parseInt(process.env.PORT) || 3026;
 const successMessage: string = `API Started Listening On Port ${port} ....`;
 
 async function bootstrap() {

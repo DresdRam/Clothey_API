@@ -1,5 +1,5 @@
-import { UserAddress } from "src/model/user_address/entity/userAddress.entity";
-import { UserPayment } from "src/model/user_payment/entity/userPayment.entity";
+import { UserAddress } from "src/model/user_address/entity/user_address.entity";
+import { UserPayment } from "src/model/user_payment/entity/user_payment.entity";
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn } from "typeorm"
 
 @Entity()

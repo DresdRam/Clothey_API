@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaymentType } from './entity/paymentType.entity';
+import { PaymentType } from './entity/payment_type.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
