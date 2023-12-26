@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { ProductInventory } from "src/model/product_inventory/entity/product_category.entity";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class CategoryType {
@@ -10,5 +11,8 @@ export class CategoryType {
         nullable: false
     })
     type: string;
+
+    @OneToOne(() => ProductInventory, inventory => inventory.type)
+    inventory: ProductInventory;
 
 }

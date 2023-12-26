@@ -1,15 +1,9 @@
-import { IsEmail, IsNumber, IsPhoneNumber, IsString } from "class-validator";
+import { IsEmail, IsPhoneNumber, IsString } from "class-validator";
 
-export class UpdateUserDto{
-
-    @IsNumber()
-    user_id: number;
+export class UserSignUpDto{
 
     @IsEmail()
     email: string;
-
-    @IsString()
-    username: string;
 
     @IsString()
     password: string;

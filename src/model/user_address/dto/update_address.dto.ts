@@ -1,11 +1,13 @@
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
 
 export class UpdateAddressDto{
     
     @IsNumber()
+    @IsPositive()
     address_id: number;
 
     @IsNumber()
+    @IsPositive()
     governorate_id: number;
 
     @IsString()

@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { UserPaymentService } from './user_payment.service';
 import { CreatePaymentDto } from './dto/create_payment.dto';
 import { UpdatePaymentDto } from './dto/update_payment.dto';
+import { AuthorizationGuard } from 'src/common/guards/authorization.guard';
 
+@UseGuards(AuthorizationGuard)
 @Controller('payments')
 export class UserPaymentController {
 

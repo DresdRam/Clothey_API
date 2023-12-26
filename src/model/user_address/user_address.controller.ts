@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { UserAddressService } from './user_address.service';
 import { CreateAddressDto } from './dto/create_address.dto';
 import { UpdateAddressDto } from './dto/update_address.dto';
+import { AuthorizationGuard } from 'src/common/guards/authorization.guard';
 
+@UseGuards(AuthorizationGuard)
 @Controller('addresses')
 export class UserAddressController {
 

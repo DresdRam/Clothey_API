@@ -1,8 +1,10 @@
-import { BadRequestException, Body, Controller, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { UserSignInDto } from './dto/userSignIn.dto';
+import { Body, Controller, Get, HttpException, HttpStatus, Patch, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
+import { AuthorizationGuard } from 'src/common/guards/authorization.guard';
+import { PutUpdateUserDto } from './dto/update_all_user_data.dto';
+import { PatchUpdateUserDto } from './dto/update_user_data.dto';
+import { UserSignInDto } from './dto/user_sign_in.dto';
+import { UserSignUpDto } from './dto/user_sign_up.dto';
 import { UserService } from './user.service';
-import { UserSignUpDto } from './dto/userSignUp.dto';
-import { UpdateUserDto } from './dto/updateUser.dto';
 
 @Controller('users')
 export class UserController {
@@ -19,15 +21,22 @@ export class UserController {
         return this.userService.signUp(body)
     }
 
+    @UseGuards(AuthorizationGuard)
     @Put('update')
-    updateUserData(@Body() body: UpdateUserDto) {
-        return this.userService.updateUserData(body)
+    updateAllUserData(@Body() body: PutUpdateUserDto, @Request() req: any) {
+        return this.userService.updateAllUserData(body, req.user_id)
     }
 
+    @UseGuards(AuthorizationGuard)
+    @Patch('update')
+    updateUserData(@Body() body: PatchUpdateUserDto, @Request() req: any) {
+        return this.userService.updateUserData(body, req.user_id)
+    }
+    
     @Get('verify-token')
     verifyToken(@Query('token') token: string) {
         if (!token) {
-            return new BadRequestException()
+            throw new HttpException("You Didn't Provide the token.", HttpStatus.BAD_REQUEST)
         }
 
         return this.userService.checkAuthorization(token)
