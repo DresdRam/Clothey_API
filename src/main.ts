@@ -14,8 +14,6 @@ if (developement == 0) {
   host = "localhost"
 }
 
-
-
 const successMessage: string = `API Started Listening On ${host}:${port} ....`;
 
 async function bootstrap() {

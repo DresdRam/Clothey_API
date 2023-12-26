@@ -48,12 +48,71 @@ export class ProductService {
         return products;
     }
 
+
+    async filter(filters: any) {
+        const query_builder = this.repo.createQueryBuilder('p')
+            .innerJoinAndSelect('p.inventory', 'i', 'p.inventory_id = i.id')
+            .innerJoinAndSelect('i.category', 'c', 'i.category_id = c.id')
+            .innerJoinAndSelect('i.type', 't', 'i.type_id = t.id')
+
+        if (filters.query) {
+            const formatted_query = filters.query.replace(' ', '%');
+            query_builder.andWhere('p.name LIKE :name', { name: `%${formatted_query}%` })
+        }
+        if (filters.category_id) {
+            query_builder.andWhere('i.category_id = :category_id', { category_id: filters.category_id });
+        }
+        if (filters.type_id) {
+            query_builder.andWhere('i.type_id = :type_id', { type_id: filters.type_id });
+        }
+        if (filters.maximum_price) {
+            query_builder.andWhere('i.price < :maximum_price', { maximum_price: filters.maximum_price });
+        }
+        if (filters.minimum_price) {
+            query_builder.andWhere('i.price > :minimum_price', { minimum_price: filters.minimum_price });
+        }
+        if (filters.size) {
+            query_builder.take(filters.size)
+            if (filters.page) {
+                query_builder.skip((filters.page - 1) * filters.size);
+            }
+        } else {
+            query_builder.take(20)
+            if (filters.page) {
+                query_builder.skip((filters.page - 1) * 20);
+            }
+        }
+
+        const products = await query_builder.getMany();
+
+        console.log(products)
+
+        return this.reformatSecondaryImagesForMany(products);
+
+    }
+
     reformatSecondaryImages(product: Product) {
         const secondary_images: string[] = product.secondary_images.split('||');
         const string_product = JSON.stringify(product);
         const json_product = JSON.parse(string_product);
         json_product.secondary_images = secondary_images;
         return json_product;
+    }
+
+    reformatSecondaryImagesForMany(products: Product[]) {
+
+        const reformed_products: any[] = [];
+
+        for (let x = 0; x < products.length; x++) {
+            const product = products.at(x);
+            const secondary_images: string[] = product.secondary_images.split('||');
+            const stringified_product = JSON.stringify(product);
+            const json_product = JSON.parse(stringified_product);
+            json_product.secondary_images = secondary_images;
+            reformed_products.push(json_product);
+        }
+
+        return reformed_products;
     }
 
 }
