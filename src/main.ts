@@ -2,7 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './model/app/app.module';
 
-const developement: number = 1;
+const developement: number = 0;
 let port: number;
 let host: string;
 
