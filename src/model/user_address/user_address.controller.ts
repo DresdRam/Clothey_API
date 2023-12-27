@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { UserAddressService } from './user_address.service';
+import { Role } from 'src/common/enum/roles.enum';
+import { RolesGuard } from 'src/common/guards/authorization.guard';
 import { CreateAddressDto } from './dto/create_address.dto';
 import { UpdateAddressDto } from './dto/update_address.dto';
-import { AuthorizationGuard } from 'src/common/guards/authorization.guard';
+import { UserAddressService } from './user_address.service';
 
-@UseGuards(AuthorizationGuard)
+@UseGuards(RolesGuard([Role.ADMIN, Role.CUSTOMER]))
 @Controller('addresses')
 export class UserAddressController {
 

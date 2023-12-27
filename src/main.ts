@@ -19,7 +19,11 @@ const successMessage: string = `API Started Listening On ${host}:${port} ....`;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-
+  app.enableCors({
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
   await app.listen(port, host).then(() => {
     console.log(successMessage);
   }).catch((error: any) => {

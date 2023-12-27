@@ -1,19 +1,26 @@
-import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { CanActivate, ExecutionContext, HttpException, HttpStatus, mixin } from "@nestjs/common";
+import { Role } from "../enum/roles.enum";
+import { ifRolesContainRole } from "../helper/if_roles_contain_role.helper";
 
-@Injectable()
-export class AuthorizationGuard implements CanActivate {
+export const RolesGuard = (roles: Role[]) => {
 
-    async canActivate(context: ExecutionContext): Promise<boolean> {
+    class AuthorizationGuard implements CanActivate {
 
-        const request = context.switchToHttp().getRequest();
+        async canActivate(context: ExecutionContext): Promise<boolean> {
 
-        const id: number = request.user_id
+            const request = context.switchToHttp().getRequest();
+            const user_type_id = request.user_type_id
+            
+            if (!user_type_id) {
+                console.log(`Authorization Guard Role: Forbidden Access!`)
+                throw new HttpException("You are not authorized.", HttpStatus.FORBIDDEN);
+            }
 
-        if (!id) {
-            console.log(`Authorization Guard: Forbidden Access!`)
-            throw new HttpException("UnAuthorized Request.", HttpStatus.FORBIDDEN)
+            const role: Role = Object.values(Role).at(user_type_id - 1) as Role;
+
+            return ifRolesContainRole(roles, role)
         }
-
-        return true
     }
+
+    return mixin(AuthorizationGuard);
 }

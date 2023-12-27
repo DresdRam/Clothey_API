@@ -1,6 +1,7 @@
 import { UserAddress } from "src/model/user_address/entity/user_address.entity";
 import { UserPayment } from "src/model/user_payment/entity/user_payment.entity";
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn } from "typeorm"
+import { UserType } from "src/model/user_type/entity/user_type.entity";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn, OneToOne, ManyToMany, ManyToOne } from "typeorm"
 
 @Entity()
 export class User {
@@ -44,5 +45,9 @@ export class User {
 
     @OneToMany(() => UserPayment, payment => payment.user)
     payments: UserPayment[];
+
+    @ManyToOne(() => UserType, user_type => user_type.users)
+    @JoinColumn({ name: 'user_type_id' })
+    user_type: UserType;
 
 }

@@ -21,6 +21,8 @@ import { UserAddress } from '../user_address/entity/user_address.entity';
 import { UserAddressModule } from '../user_address/user_address.module';
 import { UserPayment } from '../user_payment/entity/user_payment.entity';
 import { UserPaymentModule } from '../user_payment/user_payment.module';
+import { UserType } from '../user_type/entity/user_type.entity';
+import { UserTypeModule } from '../user_type/user_type.module';
 
 @Module({
   imports: [
@@ -41,6 +43,7 @@ import { UserPaymentModule } from '../user_payment/user_payment.module';
           synchronize: false,
           entities: [
             User,
+            UserType,
             UserAddress,
             UserPayment,
             PaymentType,
@@ -54,6 +57,7 @@ import { UserPaymentModule } from '../user_payment/user_payment.module';
       }
     }),
     UserModule,
+    UserTypeModule,
     UserAddressModule,
     UserPaymentModule,
     PaymentTypeModule,

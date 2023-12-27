@@ -23,6 +23,8 @@ export class AuthorizationMiddleware implements NestMiddleware {
 
                 //@ts-ignore
                 request.user_id = payload.id;
+                //@ts-ignore
+                request.user_type_id = payload.user_type_id;
 
             } catch (exception: any) { console.error(`Unauthorized Request on ${request.baseUrl}. \nMessage: ${exception.message}`) }
         }

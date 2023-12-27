@@ -8,6 +8,7 @@ import { UserSignInDto } from "./dto/user_sign_in.dto";
 import { UserSignUpDto } from "./dto/user_sign_up.dto";
 import { User } from "./entity/user.entity";
 import { PatchUpdateUserDto } from "./dto/update_user_data.dto";
+import { UserType } from "../user_type/entity/user_type.entity";
 
 @Injectable()
 export class UserService {
@@ -49,7 +50,8 @@ export class UserService {
 
         const payload = {
             id: insertResults.raw.insertId,
-            email: email
+            user_type_id: 2,
+            user_type: "Customer"
         }
 
         return {
@@ -64,6 +66,7 @@ export class UserService {
 
         const databaseUser = await this.userRepo.createQueryBuilder('u')
             .select()
+            .innerJoinAndSelect('u.user_type', 'ut', 'u.user_type_id = ut.id')
             .where('u.email = :email', { email: email })
             .getOne()
 
@@ -79,7 +82,8 @@ export class UserService {
 
         const payload = {
             id: databaseUser.id,
-            email: databaseUser.email
+            user_type_id: databaseUser.user_type.id,
+            user_type: databaseUser.user_type.user_type
         }
 
         const auth_token = await this.jwtService.signAsync(payload, { secret: process.env.JWT_TOKEN, noTimestamp: true })
@@ -117,10 +121,9 @@ export class UserService {
         const userExists = await this.userRepo.createQueryBuilder('u')
             .select()
             .where('u.email = :email', { email: body.email })
-            .andWhere('u.id != :user_id', { user_id: user_id })
             .getOne()
 
-        if (userExists) {
+        if (userExists.id == user_id) {
 
             throw new HttpException("Email already exists.", HttpStatus.CONFLICT)
 
@@ -144,7 +147,8 @@ export class UserService {
 
         const payload = {
             id: user_id,
-            email: body.email
+            user_type_id: userExists.user_type.id,
+            user_type: userExists.user_type.user_type
         }
 
         return {
@@ -196,11 +200,36 @@ export class UserService {
 
         const payload = {
             id: user_id,
-            email: user.email
+            user_type_id: user.user_type.id,
+            user_type: user.user_type.user_type
         }
 
         return {
             authentication_token: await this.jwtService.signAsync(payload, { secret: process.env.JWT_TOKEN, noTimestamp: true })
+        }
+
+    }
+
+    async makeAdmin(user_id: number) {
+
+        const user_type = new UserType();
+        user_type.id = 1;
+
+        const results = await this.userRepo.createQueryBuilder()
+            .update(User)
+            .set({
+                user_type: user_type,
+            })
+            .where('id = :user_id', { user_id: user_id })
+            .execute()
+
+        if (!results) {
+            throw new HttpException("Could not promote user to Admin!", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+
+        return {
+            statusCode: HttpStatus.OK,
+            message: "User Promoted To Admin Successfuly."
         }
 
     }

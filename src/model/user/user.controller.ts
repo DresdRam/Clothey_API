@@ -1,5 +1,6 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Patch, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
-import { AuthorizationGuard } from 'src/common/guards/authorization.guard';
+import { Role } from 'src/common/enum/roles.enum';
+import { RolesGuard } from 'src/common/guards/authorization.guard';
 import { PutUpdateUserDto } from './dto/update_all_user_data.dto';
 import { PatchUpdateUserDto } from './dto/update_user_data.dto';
 import { UserSignInDto } from './dto/user_sign_in.dto';
@@ -21,18 +22,19 @@ export class UserController {
         return this.userService.signUp(body)
     }
 
-    @UseGuards(AuthorizationGuard)
+    @UseGuards(RolesGuard([Role.ADMIN, Role.CUSTOMER]))
     @Put('update')
     updateAllUserData(@Body() body: PutUpdateUserDto, @Request() req: any) {
         return this.userService.updateAllUserData(body, req.user_id)
     }
 
-    @UseGuards(AuthorizationGuard)
+    @UseGuards(RolesGuard([Role.ADMIN, Role.CUSTOMER]))
     @Patch('update')
     updateUserData(@Body() body: PatchUpdateUserDto, @Request() req: any) {
         return this.userService.updateUserData(body, req.user_id)
     }
     
+    @UseGuards(RolesGuard([Role.ADMIN]))
     @Get('verify-token')
     verifyToken(@Query('token') token: string) {
         if (!token) {
@@ -40,6 +42,16 @@ export class UserController {
         }
 
         return this.userService.checkAuthorization(token)
+    }
+
+    @UseGuards(RolesGuard([Role.ADMIN]))
+    @Post('make-admin')
+    makeAdmin(@Query('user_id') id: number) {
+        if (!id) {
+            throw new HttpException("You Didn't Provide the user_id.", HttpStatus.BAD_REQUEST)
+        }
+
+        return this.userService.makeAdmin(id);
     }
 
 }
