@@ -48,15 +48,17 @@ export class UserService {
             throw new HttpException("Could not sign up user.", HttpStatus.INTERNAL_SERVER_ERROR)
         }
 
+        const insertedUser = await this.userRepo.createQueryBuilder('u').select().innerJoinAndSelect('u.user_type', 'ut', 'u.user_type_id = ut.id').where('u.id = :id', { id: insertResults.raw.insertId }).getOne()
+
         const payload = {
             id: insertResults.raw.insertId,
             user_type_id: 2,
             user_type: "Customer"
         }
 
-        return {
-            authorization_token: await this.jwtService.signAsync(payload, { secret: process.env.JWT_TOKEN, noTimestamp: true })
-        }
+        const authorization_token = await this.jwtService.signAsync(payload, { secret: process.env.JWT_TOKEN, noTimestamp: true })
+
+        return this.reformatUser(insertedUser, authorization_token)
     }
 
     async signIn(user: UserSignInDto) {
