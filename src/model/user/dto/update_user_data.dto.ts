@@ -2,10 +2,6 @@ import { IsEmail, IsNumber, IsOptional, IsPhoneNumber, IsPositive, IsString } fr
 
 export class PatchUpdateUserDto{
 
-    // @IsNumber()
-    // @IsPositive()
-    // user_id: number;
-
     @IsEmail()
     @IsOptional()
     email: string;

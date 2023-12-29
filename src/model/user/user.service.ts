@@ -163,6 +163,7 @@ export class UserService {
 
         const user = await this.userRepo.createQueryBuilder('u')
             .select()
+            .innerJoinAndSelect('u.user_type', 'ut', 'u.user_type_id = ut.id')
             .where('u.id = :user_id', { user_id: user_id })
             .getOne()
 
@@ -189,6 +190,7 @@ export class UserService {
         updated_user.first_name = body.first_name || user.first_name;
         updated_user.last_name = body.last_name || user.last_name;
         updated_user.phone_number = body.phone_number || user.phone_number;
+        updated_user.user_type = user.user_type;
 
         const results = await this.userRepo.createQueryBuilder()
             .update(User)
@@ -206,9 +208,9 @@ export class UserService {
             user_type: user.user_type.user_type
         }
 
-        return {
-            authentication_token: await this.jwtService.signAsync(payload, { secret: process.env.JWT_TOKEN, noTimestamp: true })
-        }
+        const authorization_token = await this.jwtService.signAsync(payload, { secret: process.env.JWT_TOKEN, noTimestamp: true })
+
+        return this.reformatUser(updated_user, authorization_token);
 
     }
 

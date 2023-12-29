@@ -1,3 +1,5 @@
+import { ShopOrder } from "src/model/shop_order/entity/shop_order.entity";
+import { ShoppingCart } from "src/model/shopping_cart/entity/shopping_cart.entity";
 import { UserAddress } from "src/model/user_address/entity/user_address.entity";
 import { UserPayment } from "src/model/user_payment/entity/user_payment.entity";
 import { UserType } from "src/model/user_type/entity/user_type.entity";
@@ -49,5 +51,11 @@ export class User {
     @ManyToOne(() => UserType, user_type => user_type.users)
     @JoinColumn({ name: 'user_type_id' })
     user_type: UserType;
+
+    @OneToMany(() => ShopOrder, order => order.user)
+    orders: ShopOrder[];
+
+    @OneToMany(() => ShoppingCart, cart => cart.user)
+    carts: ShoppingCart[];
 
 }

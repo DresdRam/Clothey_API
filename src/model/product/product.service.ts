@@ -30,6 +30,7 @@ export class ProductService {
 
         const products = await this.repo.createQueryBuilder('p')
             .select([
+                'p.id',
                 'p.name',
                 'p.main_image',
                 'i.price',
@@ -43,6 +44,30 @@ export class ProductService {
 
         if (!products || products.length == 0) {
             throw new HttpException("There is no products with that search query!", HttpStatus.NOT_FOUND)
+        }
+
+        return products;
+    }
+
+    
+    async getBestSeller() {
+
+        const products = await this.repo.createQueryBuilder('p')
+            .select([
+                'p.id',
+                'p.name',
+                'p.main_image',
+                'i.price',
+                'i.qty_in_stock'
+            ])
+            .innerJoin('p.inventory', 'i', 'p.inventory_id = i.id')
+            .innerJoinAndSelect('i.category', 'c', 'i.category_id = c.id')
+            .innerJoinAndSelect('i.type', 't', 'i.type_id = t.id')
+            .take(10)
+            .getMany();
+
+        if (!products || products.length == 0) {
+            throw new HttpException("There is no products available!", HttpStatus.NOT_FOUND)
         }
 
         return products;

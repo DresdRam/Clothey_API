@@ -1,5 +1,6 @@
 import { ProductInventory } from "src/model/product_inventory/entity/product_category.entity";
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { ShoppingCartItem } from "src/model/shopping_cart_item/entity/shopping_cart_item.entity";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Product {
@@ -30,5 +31,8 @@ export class Product {
     @OneToOne(() => ProductInventory, inventory => inventory.product)
     @JoinColumn({ name: 'inventory_id' })
     inventory: ProductInventory;
+
+    @ManyToMany(() => ShoppingCartItem, cart => cart.products)
+    cart_items: ShoppingCartItem[];
 
 }

@@ -1,6 +1,7 @@
 import { Governorate } from "src/model/governorate/entity/governorate.entity";
+import { ShopOrder } from "src/model/shop_order/entity/shop_order.entity";
 import { User } from "src/model/user/entity/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class UserAddress {
@@ -32,5 +33,8 @@ export class UserAddress {
     @ManyToOne(() => Governorate, governorate => governorate.addresses)
     @JoinColumn({ name: 'governorate_id' })
     governorate: Governorate;
+
+    @OneToMany(() => ShopOrder, order => order.address)
+    orders: ShopOrder[];
 
 }

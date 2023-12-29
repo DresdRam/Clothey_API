@@ -25,12 +25,22 @@ export class UserController {
     @UseGuards(RolesGuard([Role.ADMIN, Role.CUSTOMER]))
     @Put('update')
     updateAllUserData(@Body() body: PutUpdateUserDto, @Request() req: any) {
+
+        if(!body) {
+            throw new HttpException("You did't provide a body", HttpStatus.BAD_REQUEST);
+        }
+
         return this.userService.updateAllUserData(body, req.user_id)
     }
 
     @UseGuards(RolesGuard([Role.ADMIN, Role.CUSTOMER]))
     @Patch('update')
     updateUserData(@Body() body: PatchUpdateUserDto, @Request() req: any) {
+
+        if(!body) {
+            throw new HttpException("You did't provide a body", HttpStatus.BAD_REQUEST);
+        }
+
         return this.userService.updateUserData(body, req.user_id)
     }
     

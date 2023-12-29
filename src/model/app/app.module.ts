@@ -23,6 +23,16 @@ import { UserPayment } from '../user_payment/entity/user_payment.entity';
 import { UserPaymentModule } from '../user_payment/user_payment.module';
 import { UserType } from '../user_type/entity/user_type.entity';
 import { UserTypeModule } from '../user_type/user_type.module';
+import { ShippingMethod } from '../shipping_method/entity/shipping_method.entity';
+import { OrderStatus } from '../order_status/entity/order_status.entity';
+import { ShopOrder } from '../shop_order/entity/shop_order.entity';
+import { ShoppingCart } from '../shopping_cart/entity/shopping_cart.entity';
+import { ShoppingCartItem } from '../shopping_cart_item/entity/shopping_cart_item.entity';
+import { ShippingMethodModule } from '../shipping_method/shipping_method.module';
+import { OrderStatusModule } from '../order_status/order_status.module';
+import { ShopOrderModule } from '../shop_order/shop_order.module';
+import { ShoppingCartModule } from '../shopping_cart/shopping_cart.module';
+import { ShoppingCartItemModule } from '../shopping_cart_item/shopping_cart_item.module';
 
 @Module({
   imports: [
@@ -51,7 +61,12 @@ import { UserTypeModule } from '../user_type/user_type.module';
             CategoryType,
             Product,
             ProductCategory,
-            ProductInventory
+            ProductInventory,
+            ShippingMethod,
+            OrderStatus,
+            ShopOrder,
+            ShoppingCart,
+            ShoppingCartItem
           ]
         }
       }
@@ -66,7 +81,12 @@ import { UserTypeModule } from '../user_type/user_type.module';
     ProductModule,
     ProductCategoryModule,
     ProductInventoryModule,
-    GatewayModule]
+    GatewayModule,
+    ShippingMethodModule,
+    OrderStatusModule,
+    ShopOrderModule,
+    ShoppingCartModule,
+    ShoppingCartItemModule]
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

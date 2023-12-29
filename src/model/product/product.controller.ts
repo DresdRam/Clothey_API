@@ -17,6 +17,11 @@ export class ProductController {
         return this.service.search(name);
     }
 
+    @Get('best-seller')
+    getBestSeller() {
+        return this.service.getBestSeller();
+    }
+
     @Get('filter')
     filterProducts(
         @Query() queries: FilterQueries
