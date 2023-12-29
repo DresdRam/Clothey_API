@@ -22,6 +22,16 @@ export class ProductController {
         return this.service.getBestSeller();
     }
 
+    @Get('new-arrival')
+    getNewArrivals() {
+        return this.service.getNewArrivals();
+    }
+
+    // @Get('best-seller')
+    // getBestSeller() {
+    //     return this.service.getBestSeller();
+    // }
+
     @Get('filter')
     filterProducts(
         @Query() queries: FilterQueries

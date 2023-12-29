@@ -116,6 +116,29 @@ export class ProductService {
 
     }
 
+    async getNewArrivals() {
+        const products = await this.repo.createQueryBuilder('p')
+            .select([
+                'p.id',
+                'p.name',
+                'p.main_image',
+                'i.price',
+                'i.qty_in_stock'
+            ])
+            .innerJoin('p.inventory', 'i', 'p.inventory_id = i.id')
+            .innerJoinAndSelect('i.category', 'c', 'i.category_id = c.id')
+            .innerJoinAndSelect('i.type', 't', 'i.type_id = t.id')
+            .orderBy('p.id', 'DESC')
+            .take(8)
+            .getMany();
+
+        if (!products || products.length == 0) {
+            throw new HttpException("There is no products available!", HttpStatus.NOT_FOUND)
+        }
+
+        return products;
+    }
+
     reformatSecondaryImages(product: Product) {
         const secondary_images: string[] = product.secondary_images.split('||');
         const string_product = JSON.stringify(product);

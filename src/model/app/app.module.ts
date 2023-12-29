@@ -33,6 +33,8 @@ import { OrderStatusModule } from '../order_status/order_status.module';
 import { ShopOrderModule } from '../shop_order/shop_order.module';
 import { ShoppingCartModule } from '../shopping_cart/shopping_cart.module';
 import { ShoppingCartItemModule } from '../shopping_cart_item/shopping_cart_item.module';
+import { PromotionModule } from '../promotion/promotion.module';
+import { Promotion } from '../promotion/entity/promotion.entity';
 
 @Module({
   imports: [
@@ -62,6 +64,7 @@ import { ShoppingCartItemModule } from '../shopping_cart_item/shopping_cart_item
             Product,
             ProductCategory,
             ProductInventory,
+            Promotion,
             ShippingMethod,
             OrderStatus,
             ShopOrder,
@@ -82,6 +85,7 @@ import { ShoppingCartItemModule } from '../shopping_cart_item/shopping_cart_item
     ProductCategoryModule,
     ProductInventoryModule,
     GatewayModule,
+    PromotionModule,
     ShippingMethodModule,
     OrderStatusModule,
     ShopOrderModule,
