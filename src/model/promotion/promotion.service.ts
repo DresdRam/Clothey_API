@@ -64,7 +64,7 @@ export class PromotionService {
         const date = new Date()
         const current_date = date.toISOString()
 
-        const products = this.productRepo.createQueryBuilder('product')
+        const products = await this.productRepo.createQueryBuilder('product')
             .select([
                 'product.id',
                 'product.name',
@@ -88,7 +88,24 @@ export class PromotionService {
             throw new HttpException("There is no products with discounts!", HttpStatus.NO_CONTENT);
         }
 
-        return products;
+        return this.calculateNewPrice(products);
+    }
+
+    calculateNewPrice(products: Product[]) {
+        const final_products = [];
+
+        for (let x = 0; x < products.length; x++) {
+            const current_product: Product = products.at(x);
+            const discount_rate = current_product.promotion.discount_rate / 100;
+            const old_price = current_product.inventory.price;
+            const new_price = old_price - (old_price * discount_rate);
+            const stringfied = JSON.stringify(current_product);
+            const json_product = JSON.parse(stringfied);
+            json_product.new_price = new_price;
+            final_products.push(json_product);
+        }
+
+        return final_products;
     }
 
 }

@@ -14,6 +14,7 @@ export class ProductService {
             .innerJoinAndSelect('p.inventory', 'i', 'p.inventory_id = i.id')
             .innerJoinAndSelect('i.category', 'c', 'i.category_id = c.id')
             .innerJoinAndSelect('i.type', 't', 'i.type_id = t.id')
+            .leftJoinAndSelect('p.promotion', 'pr', 'pr.product_id = p.id')
             .where('p.id = :product_id', { product_id: product_id })
             .getOne()
 
@@ -21,7 +22,9 @@ export class ProductService {
             throw new HttpException("There is no product with that id!", HttpStatus.NOT_FOUND)
         }
 
-        return this.reformatSecondaryImages(product);
+        const promoted_product = this.reformatPromotedProduct(product)
+
+        return this.reformatSecondaryImages(promoted_product);
     }
 
     async search(search_query: string) {
@@ -46,10 +49,10 @@ export class ProductService {
             throw new HttpException("There is no products with that search query!", HttpStatus.NOT_FOUND)
         }
 
-        return products;
+        return this.reformatPromotedProducts(products);
     }
 
-    
+
     async getBestSeller() {
 
         const products = await this.repo.createQueryBuilder('p')
@@ -63,14 +66,15 @@ export class ProductService {
             .innerJoin('p.inventory', 'i', 'p.inventory_id = i.id')
             .innerJoinAndSelect('i.category', 'c', 'i.category_id = c.id')
             .innerJoinAndSelect('i.type', 't', 'i.type_id = t.id')
-            .take(10)
+            .leftJoinAndSelect('p.promotion', 'pr', 'pr.product_id = p.id')
+            .take(20)
             .getMany();
 
         if (!products || products.length == 0) {
             throw new HttpException("There is no products available!", HttpStatus.NOT_FOUND)
         }
 
-        return products;
+        return this.reformatPromotedProducts(products);
     }
 
 
@@ -79,6 +83,7 @@ export class ProductService {
             .innerJoinAndSelect('p.inventory', 'i', 'p.inventory_id = i.id')
             .innerJoinAndSelect('i.category', 'c', 'i.category_id = c.id')
             .innerJoinAndSelect('i.type', 't', 'i.type_id = t.id')
+            .leftJoinAndSelect('p.promotion', 'pr', 'pr.product_id = p.id')
 
         if (filters.query) {
             const formatted_query = filters.query.replace(' ', '%');
@@ -109,10 +114,9 @@ export class ProductService {
         }
 
         const products = await query_builder.getMany();
+        const promoted_products = this.reformatPromotedProducts(products)
 
-        console.log(products)
-
-        return this.reformatSecondaryImagesForMany(products);
+        return this.reformatSecondaryImagesForMany(promoted_products);
 
     }
 
@@ -128,6 +132,7 @@ export class ProductService {
             .innerJoin('p.inventory', 'i', 'p.inventory_id = i.id')
             .innerJoinAndSelect('i.category', 'c', 'i.category_id = c.id')
             .innerJoinAndSelect('i.type', 't', 'i.type_id = t.id')
+            .leftJoinAndSelect('p.promotion', 'pr', 'pr.product_id = p.id')
             .orderBy('p.id', 'DESC')
             .take(8)
             .getMany();
@@ -136,7 +141,7 @@ export class ProductService {
             throw new HttpException("There is no products available!", HttpStatus.NOT_FOUND)
         }
 
-        return products;
+        return this.reformatPromotedProducts(products);
     }
 
     reformatSecondaryImages(product: Product) {
@@ -147,17 +152,37 @@ export class ProductService {
         return json_product;
     }
 
+    reformatPromotedProducts(products: Product[]) {
+
+        const final_products = [];
+
+        for (let x = 0; x < products.length; x++) {
+            const current_product: Product = products.at(x);
+            final_products.push(this.reformatPromotedProduct(current_product));
+        }
+
+        return final_products;
+    }
+
+    reformatPromotedProduct(product: Product) {
+        const stringfied = JSON.stringify(product);
+        const json_product = JSON.parse(stringfied);
+        if (product.promotion) {
+            const discount_rate = product.promotion.discount_rate / 100;
+            const old_price = product.inventory.price;
+            const new_price = old_price - (old_price * discount_rate);
+            json_product.new_price = new_price;
+        }
+        return json_product;
+    }
+
     reformatSecondaryImagesForMany(products: Product[]) {
 
-        const reformed_products: any[] = [];
+        const reformed_products = [];
 
         for (let x = 0; x < products.length; x++) {
             const product = products.at(x);
-            const secondary_images: string[] = product.secondary_images.split('||');
-            const stringified_product = JSON.stringify(product);
-            const json_product = JSON.parse(stringified_product);
-            json_product.secondary_images = secondary_images;
-            reformed_products.push(json_product);
+            reformed_products.push(this.reformatSecondaryImages(product));
         }
 
         return reformed_products;
