@@ -114,10 +114,6 @@ export class UserService {
         }
     }
 
-    async hashPassword(password: string, salt: number = 12) {
-        return await hash(password, salt)
-    }
-
     async updateAllUserData(body: PutUpdateUserDto, user_id: number) {
 
         const userExists = await this.userRepo.createQueryBuilder('u')
@@ -186,7 +182,11 @@ export class UserService {
 
         const updated_user = new User();
         updated_user.email = body.email || user.email;
-        updated_user.password = await this.hashPassword(body.password) || user.password;
+        if (body.password) {
+            updated_user.password = await this.hashPassword(body.password);
+        } else {
+            updated_user.password = user.password;
+        }
         updated_user.first_name = body.first_name || user.first_name;
         updated_user.last_name = body.last_name || user.last_name;
         updated_user.phone_number = body.phone_number || user.phone_number;
@@ -246,6 +246,10 @@ export class UserService {
         delete json_user['password'];
         delete json_user['updated_at'];
         return json_user;
+    }
+
+    async hashPassword(password: string, salt: number = 12) {
+        return await hash(password, salt)
     }
 
 }
