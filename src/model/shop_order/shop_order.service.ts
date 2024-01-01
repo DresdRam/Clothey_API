@@ -55,6 +55,79 @@ export class ShopOrderService {
 
     }
 
+    async findOne(order_id: any) {
+        const order = await this.orderRepo.createQueryBuilder('order')
+        .select()
+        .innerJoinAndSelect('order.address', 'address', 'order.shipping_address = address.id')
+        .innerJoinAndSelect('order.order_lines', 'line', 'order.id = line.order_id')
+        .innerJoinAndSelect('line.product', 'product', 'line.product_id = product.id')
+        .innerJoinAndSelect('product.inventory', 'inventory', 'product.inventory_id = inventory.id')
+        .innerJoinAndSelect('address.governorate', 'governorate', 'address.governorate_id = governorate.id')
+        .innerJoinAndSelect('order.status', 'status', 'order.order_status = status.id')
+        .where('order.id = :id', { id: order_id })
+        .getOne()
+
+        if(!order) {
+            throw new HttpException("This user has no orders!", HttpStatus.NOT_FOUND)
+        }
+
+        return this.reformatOrderData(order);
+    }
+
+    private reformatOrderData(order: ShopOrder) {
+        var final_json: any = {};
+        var products = [];
+        var order_total_price = 0;
+
+        for (let x = 0; x < order.order_lines.length; x++) {
+            const item = order.order_lines.at(x);
+            const product: any = {};
+            const total = item.product.inventory.price * item.quantity;
+            product.id = item.product.id;
+            product.name = item.product.name;
+            product.main_image = item.product.main_image;
+            product.price_per_piece = item.product.inventory.price;
+            product.quantity = item.quantity;
+            product.total = total;
+            products.push(product);
+            order_total_price += total;
+        }
+
+        final_json.products = products;
+        final_json.shipping_price = 100;
+        final_json.shipping_address = order.address.address_line1;
+        final_json.shipping_governorate = order.address.governorate.governorate;
+        final_json.order_total_price = order_total_price + 100;
+        final_json.order_date = order.order_date;
+        final_json.order_status = order.status.status;
+
+        return final_json;
+    }
+
+    async myOrders(user_id: any) {
+        const orders = await this.orderRepo.createQueryBuilder('order')
+        .select([
+            'order.id',
+            'order.order_date',
+            'order.order_total',
+            'address.id',
+            'address.address_line1',
+            'address.address_line2',
+            'governorate.governorate'
+        ])
+        .innerJoin('order.address', 'address', 'order.shipping_address = address.id')
+        .innerJoin('address.governorate', 'governorate', 'address.governorate_id = governorate.id')
+        .innerJoin('order.status', 'status', 'order.order_status = status.id')
+        .where('order.user_id = :id', { id: user_id })
+        .getMany()
+
+        if(!orders) {
+            throw new HttpException("This user has no orders!", HttpStatus.NOT_FOUND)
+        }
+
+        return orders;
+    }
+
     async preplacingOrder(user_id: number) {
         const cart = await this.cartRepo.createQueryBuilder('cart')
             .select([
@@ -172,9 +245,9 @@ export class ShopOrderService {
             ])
             .innerJoin('order.address', 'address', 'order.shipping_address = address.id')
             .innerJoin('order.status', 'status', 'order.order_status = status.id')
-            .innerJoin('order.order_line', 'line', 'order.id = line._order_id')
+            .innerJoin('order.order_lines', 'line', 'order.id = line.order_id')
             .innerJoin('line.product', 'product', 'line.product_id = product.id')
-            .innerJoin('product.inventory', 'inventory', 'inventory.product_id = product.id')
+            .innerJoin('product.inventory', 'inventory', 'product.inventory_id = inventory.id')
             .where('order.user_id = :id', { id: user_id })
             .getMany()
 

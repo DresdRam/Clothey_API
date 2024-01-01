@@ -18,7 +18,7 @@ export class OrderLine {
     @JoinColumn({ name: 'product_id' })
     product: Product;
 
-    @ManyToOne(() => ShopOrder, order => order.order_line)
+    @ManyToOne(() => ShopOrder, order => order.order_lines)
     @JoinColumn({ name: 'order_id' })
     order: ShopOrder;
 

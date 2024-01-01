@@ -40,5 +40,5 @@ export class ShopOrder {
 
     @OneToMany(() => OrderLine, order_line => order_line.order)
     @JoinColumn({ name: 'order_status' })
-    order_line: OrderLine[];
+    order_lines: OrderLine[];
 }

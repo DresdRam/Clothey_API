@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { Role } from 'src/common/enum/roles.enum';
 import { RolesGuard } from 'src/common/guards/authorization.guard';
 import { CancelOrderDto } from './dto/cancel_order.dto';
@@ -33,6 +33,28 @@ export class ShopOrderController {
     }
 
     @UseGuards(RolesGuard([Role.ADMIN, Role.CUSTOMER]))
+    @Get('my-orders')
+    getAllMyOrders(@Req() request: any){
+        
+        if(!request.user_id) {
+            throw new HttpException("There is something wrong with your authorization token!", HttpStatus.FORBIDDEN);
+        }
+        
+        return this.service.myOrders(request.user_id);
+    }
+
+    @UseGuards(RolesGuard([Role.ADMIN, Role.CUSTOMER]))
+    @Get('get-order')
+    getOrder(@Query('order_id') order_id: number, @Req() request: any){
+        
+        if(!request.user_id) {
+            throw new HttpException("There is something wrong with your authorization token!", HttpStatus.FORBIDDEN);
+        }
+        
+        return this.service.findOne(order_id);
+    }
+
+    @UseGuards(RolesGuard([Role.ADMIN, Role.CUSTOMER]))
     @Get('preplacing-order')
     getPreplacingOrderInfo(@Req() request: any){
         
@@ -42,6 +64,7 @@ export class ShopOrderController {
         
         return this.service.preplacingOrder(request.user_id);
     }
+    
 
     @UseGuards(RolesGuard([Role.ADMIN]))
     @Patch('update-status')
