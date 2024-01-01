@@ -9,12 +9,15 @@ import { UserSignUpDto } from "./dto/user_sign_up.dto";
 import { User } from "./entity/user.entity";
 import { PatchUpdateUserDto } from "./dto/update_user_data.dto";
 import { UserType } from "../user_type/entity/user_type.entity";
+import { UserPaymentService } from "../user_payment/user_payment.service";
+import { CreatePaymentDto } from "../user_payment/dto/create_payment.dto";
 
 @Injectable()
 export class UserService {
 
     constructor(
         @InjectRepository(User) private readonly userRepo: Repository<User>,
+        private readonly paymentService: UserPaymentService,
         private readonly jwtService: JwtService
     ) { }
 
@@ -57,6 +60,10 @@ export class UserService {
         }
 
         const authorization_token = await this.jwtService.signAsync(payload, { secret: process.env.JWT_TOKEN, noTimestamp: true })
+
+        const payment = new CreatePaymentDto();
+        payment.user_id = insertResults.raw.insertId;
+        this.paymentService.createUserPayment(payment);
 
         return this.reformatUser(insertedUser, authorization_token)
     }
@@ -238,7 +245,7 @@ export class UserService {
 
     }
 
-    reformatUser(user: User, token: string) {
+    private reformatUser(user: User, token: string) {
         const stringified_user = JSON.stringify(user);
         const json_user = JSON.parse(stringified_user);
         json_user.authorization_token = token;
@@ -248,7 +255,7 @@ export class UserService {
         return json_user;
     }
 
-    async hashPassword(password: string, salt: number = 12) {
+    private async hashPassword(password: string, salt: number = 12) {
         return await hash(password, salt)
     }
 

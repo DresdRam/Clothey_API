@@ -1,3 +1,4 @@
+import { OrderLine } from "src/model/order_line/entity/order_line.entity";
 import { ProductInventory } from "src/model/product_inventory/entity/product_category.entity";
 import { Promotion } from "src/model/promotion/entity/promotion.entity";
 import { ShoppingCartItem } from "src/model/shopping_cart_item/entity/shopping_cart_item.entity";
@@ -33,10 +34,13 @@ export class Product {
     @JoinColumn({ name: 'inventory_id' })
     inventory: ProductInventory;
 
-    @ManyToMany(() => ShoppingCartItem, cart => cart.products)
-    cart_items: ShoppingCartItem[];
+    @OneToOne(() => ShoppingCartItem, cart => cart.product)
+    cart_item: ShoppingCartItem;
 
     @OneToOne(() => Promotion, promotion => promotion.product)
     promotion: Promotion;
+
+    @OneToOne(() => OrderLine, order_line => order_line.product)
+    order_line: OrderLine;
 
 }

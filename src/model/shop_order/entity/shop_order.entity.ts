@@ -1,9 +1,10 @@
+import { OrderLine } from "src/model/order_line/entity/order_line.entity";
 import { OrderStatus } from "src/model/order_status/entity/order_status.entity";
 import { ShippingMethod } from "src/model/shipping_method/entity/shipping_method.entity";
 import { User } from "src/model/user/entity/user.entity";
 import { UserAddress } from "src/model/user_address/entity/user_address.entity";
 import { UserPayment } from "src/model/user_payment/entity/user_payment.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class ShopOrder {
@@ -36,4 +37,8 @@ export class ShopOrder {
     @ManyToOne(() => OrderStatus, status => status.orders)
     @JoinColumn({ name: 'order_status' })
     status: OrderStatus;
+
+    @OneToMany(() => OrderLine, order_line => order_line.order)
+    @JoinColumn({ name: 'order_status' })
+    order_line: OrderLine[];
 }

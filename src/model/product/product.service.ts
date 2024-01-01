@@ -76,8 +76,7 @@ export class ProductService {
 
         return this.reformatPromotedProducts(products);
     }
-
-
+    
     async filter(filters: any) {
         const query_builder = this.repo.createQueryBuilder('p')
             .innerJoinAndSelect('p.inventory', 'i', 'p.inventory_id = i.id')

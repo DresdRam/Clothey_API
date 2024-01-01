@@ -35,6 +35,8 @@ import { ShoppingCartModule } from '../shopping_cart/shopping_cart.module';
 import { ShoppingCartItemModule } from '../shopping_cart_item/shopping_cart_item.module';
 import { PromotionModule } from '../promotion/promotion.module';
 import { Promotion } from '../promotion/entity/promotion.entity';
+import { OrderLine } from '../order_line/entity/order_line.entity';
+import { OrderLineModule } from '../order_line/order_line.module';
 
 @Module({
   imports: [
@@ -54,10 +56,10 @@ import { Promotion } from '../promotion/entity/promotion.entity';
           database: config.get<string>('DATABASE_NAME'),
           synchronize: false,
           entities: [
+            UserPayment,
             User,
             UserType,
             UserAddress,
-            UserPayment,
             PaymentType,
             Governorate,
             CategoryType,
@@ -68,16 +70,17 @@ import { Promotion } from '../promotion/entity/promotion.entity';
             ShippingMethod,
             OrderStatus,
             ShopOrder,
+            OrderLine,
             ShoppingCart,
             ShoppingCartItem
           ]
         }
       }
     }),
+    UserPaymentModule,
     UserModule,
     UserTypeModule,
     UserAddressModule,
-    UserPaymentModule,
     PaymentTypeModule,
     GovernorateModule,
     CategoryTypeModule,
@@ -90,7 +93,9 @@ import { Promotion } from '../promotion/entity/promotion.entity';
     OrderStatusModule,
     ShopOrderModule,
     ShoppingCartModule,
-    ShoppingCartItemModule]
+    ShoppingCartItemModule,
+    OrderLineModule,
+  ]
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
