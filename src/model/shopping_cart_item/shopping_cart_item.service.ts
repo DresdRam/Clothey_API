@@ -134,4 +134,33 @@ export class ShoppingCartItemService {
             }
         }
     }
+    
+    async remove(item_id: number, user_id: any) {
+        
+        const exists_for_user = await this.cartRepo.createQueryBuilder('cart')
+        .select()
+        .innerJoinAndSelect('cart.items', 'item', 'cart.id = item.cart_id')
+        .where('cart.user_id = :user_id', { user_id: user_id })
+        .andWhere('item.id = :id', { id: item_id })
+        .getOne()
+
+        if(!exists_for_user) {
+            throw new HttpException("This item id does not belong to the user!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        const results = await this.itemsRepo.createQueryBuilder()
+        .delete()
+        .from(ShoppingCartItem)
+        .where('id = :id', { id: item_id })
+        .execute()
+
+        if(!results) {
+            throw new HttpException("Could not remove this item from cart!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return {
+            statusCode: HttpStatus.NO_CONTENT,
+            message: "Removed from cart successfuly."
+        }
+    }
 }

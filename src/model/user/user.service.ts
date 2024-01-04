@@ -2,15 +2,20 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
 import { compare, hash } from 'bcryptjs';
+import { PasswordResetService } from "src/model/password_reset/password_reset.service";
 import { Repository } from "typeorm";
+import { EmailService } from "../email/email.service";
+import { CreatePaymentDto } from "../user_payment/dto/create_payment.dto";
+import { UserPaymentService } from "../user_payment/user_payment.service";
+import { UserType } from "../user_type/entity/user_type.entity";
+import { SendResetCodeDto } from "./dto/send_reset_code.dto";
 import { PutUpdateUserDto } from "./dto/update_all_user_data.dto";
+import { PatchUpdateUserDto } from "./dto/update_user_data.dto";
 import { UserSignInDto } from "./dto/user_sign_in.dto";
 import { UserSignUpDto } from "./dto/user_sign_up.dto";
 import { User } from "./entity/user.entity";
-import { PatchUpdateUserDto } from "./dto/update_user_data.dto";
-import { UserType } from "../user_type/entity/user_type.entity";
-import { UserPaymentService } from "../user_payment/user_payment.service";
-import { CreatePaymentDto } from "../user_payment/dto/create_payment.dto";
+import { ResetPasswordDto } from "./dto/reset_password.dto";
+import { ConfirmResetCodeDto } from "./dto/confirm_reset_code.dto";
 
 @Injectable()
 export class UserService {
@@ -18,7 +23,9 @@ export class UserService {
     constructor(
         @InjectRepository(User) private readonly userRepo: Repository<User>,
         private readonly paymentService: UserPaymentService,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly emailService: EmailService,
+        private readonly resetService: PasswordResetService
     ) { }
 
     async signUp(user: UserSignUpDto) {
@@ -243,6 +250,66 @@ export class UserService {
             message: "User Promoted To Admin Successfuly."
         }
 
+    }
+
+    async sendResetCode(body: SendResetCodeDto) {
+
+        const user = await this.checkIfEmailExists(body.email);
+
+        const reset_code = Math.floor(100000 + Math.random() * 9000).toString();
+
+        await this.emailService.sendPasswordResetCode(body.email, reset_code);
+
+        this.resetService.create(user.id, reset_code);
+
+        return reset_code;
+    }
+
+    async confirmResetCode(body: ConfirmResetCodeDto) {
+
+        return await this.resetService.confirm(body.code);
+
+    }
+
+    async resetPassword(body: ResetPasswordDto) {
+        const code = await this.resetService.findOne(body.email);
+
+        if (code.validated == 0) {
+            throw new HttpException("This code was not validated!", HttpStatus.NOT_ACCEPTABLE);
+        } else {
+
+            const results = await this.userRepo.createQueryBuilder()
+                .update(User)
+                .set({
+                    password: await this.hashPassword(body.new_password),
+                })
+                .where('id = :user_id', { user_id: code.user.id })
+                .execute()
+
+            if (!results) {
+                throw new HttpException("Could not reset password!", HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+
+            this.resetService.remove(code.id);
+
+            return {
+                statusCode: HttpStatus.OK,
+                message: "password reset Successfuly."
+            }
+        }
+    }
+
+    async checkIfEmailExists(email: string) {
+        const user = await this.userRepo.createQueryBuilder()
+            .select()
+            .where('email = :email', { email: email })
+            .getOne();
+
+        if (!user) {
+            throw new HttpException("There is no such email.", HttpStatus.NOT_FOUND);
+        }
+
+        return user;
     }
 
     private reformatUser(user: User, token: string) {

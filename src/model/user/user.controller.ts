@@ -6,6 +6,9 @@ import { PatchUpdateUserDto } from './dto/update_user_data.dto';
 import { UserSignInDto } from './dto/user_sign_in.dto';
 import { UserSignUpDto } from './dto/user_sign_up.dto';
 import { UserService } from './user.service';
+import { SendResetCodeDto } from './dto/send_reset_code.dto';
+import { ConfirmResetCodeDto } from './dto/confirm_reset_code.dto';
+import { ResetPasswordDto } from './dto/reset_password.dto';
 
 @Controller('users')
 export class UserController {
@@ -62,6 +65,21 @@ export class UserController {
         }
 
         return this.userService.makeAdmin(id);
+    }
+
+    @Post('send-reset-code')
+    sendResetCode(@Body() body: SendResetCodeDto) {
+        return this.userService.sendResetCode(body);
+    }
+
+    @Post('confirm-reset-code')
+    confirmResetCode(@Body() body: ConfirmResetCodeDto) {
+        return this.userService.confirmResetCode(body);
+    }
+
+    @Patch('reset-password')
+    resetPassword(@Body() body: ResetPasswordDto) {
+        return this.userService.resetPassword(body);
     }
 
 }

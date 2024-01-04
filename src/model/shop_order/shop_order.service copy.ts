@@ -6,12 +6,9 @@ import { OrderStatus } from '../order_status/entity/order_status.entity';
 import { ShoppingCart } from '../shopping_cart/entity/shopping_cart.entity';
 import { ShoppingCartItem } from '../shopping_cart_item/entity/shopping_cart_item.entity';
 import { User } from '../user/entity/user.entity';
-import { UserAddress } from '../user_address/entity/user_address.entity';
 import { CancelOrderDto } from './dto/cancel_order.dto';
-import { PlaceOrderDto } from './dto/place_order.dto';
 import { UpdateOrderStatusDto } from './dto/update_status.dto';
 import { ShopOrder } from './entity/shop_order.entity';
-import { Governorate } from '../governorate/entity/governorate.entity';
 
 @Injectable()
 export class ShopOrderService {
@@ -21,13 +18,11 @@ export class ShopOrderService {
         @InjectRepository(OrderLine) private readonly orderLineRepo: Repository<OrderLine>,
         @InjectRepository(ShoppingCart) readonly cartRepo: Repository<ShoppingCart>,
         @InjectRepository(ShoppingCartItem) readonly itemsRepo: Repository<ShoppingCartItem>,
-        @InjectRepository(User) readonly userRepo: Repository<User>,
-        @InjectRepository(UserAddress) readonly addressRepo: Repository<UserAddress>
+        @InjectRepository(User) readonly userRepo: Repository<User>
     ) { }
 
-    async placeOrder(body: PlaceOrderDto, user_id: number) {
-
-        this.setupUserAddress(body, user_id)
+    async placeOrder(user_id: number) {
+        console.log("Place Order Function!");
         const user = await this.getUser(user_id);
         const cart = await this.findCart(user_id);
 
@@ -60,63 +55,19 @@ export class ShopOrderService {
 
     }
 
-    async setupUserAddress(body: PlaceOrderDto, user_id: number) {
-        const address = await this.addressRepo.createQueryBuilder()
-            .select()
-            .where('user_id = :id', { id: user_id })
-            .getOne();
-
-        if (address) {
-            const governorate = new Governorate();
-            governorate.id = body.governorate_id;
-
-            await this.addressRepo.createQueryBuilder()
-                .update()
-                .set(
-                    {
-                        governorate: governorate,
-                        address_line1: body.address_line1,
-                        address_line2: body.address_line2,
-                        postal_code: body.postal_code
-                    }
-                )
-                .where('id = :id', { id: address.id })
-                .execute();
-        } else {
-            const user = new User();
-            const governorate = new Governorate();
-            governorate.id = body.governorate_id;
-            user.id = user_id;
-
-            await this.addressRepo.createQueryBuilder()
-                .insert()
-                .into(UserAddress)
-                .values([
-                    {
-                        user: user,
-                        governorate: governorate,
-                        address_line1: body.address_line1,
-                        address_line2: body.address_line2,
-                        postal_code: body.postal_code
-                    }
-                ])
-                .execute();
-        }
-    }
-
     async findOne(order_id: any) {
         const order = await this.orderRepo.createQueryBuilder('order')
-            .select()
-            .innerJoinAndSelect('order.address', 'address', 'order.shipping_address = address.id')
-            .innerJoinAndSelect('order.order_lines', 'line', 'order.id = line.order_id')
-            .innerJoinAndSelect('line.product', 'product', 'line.product_id = product.id')
-            .innerJoinAndSelect('product.inventory', 'inventory', 'product.inventory_id = inventory.id')
-            .innerJoinAndSelect('address.governorate', 'governorate', 'address.governorate_id = governorate.id')
-            .innerJoinAndSelect('order.status', 'status', 'order.order_status = status.id')
-            .where('order.id = :id', { id: order_id })
-            .getOne()
+        .select()
+        .innerJoinAndSelect('order.address', 'address', 'order.shipping_address = address.id')
+        .innerJoinAndSelect('order.order_lines', 'line', 'order.id = line.order_id')
+        .innerJoinAndSelect('line.product', 'product', 'line.product_id = product.id')
+        .innerJoinAndSelect('product.inventory', 'inventory', 'product.inventory_id = inventory.id')
+        .innerJoinAndSelect('address.governorate', 'governorate', 'address.governorate_id = governorate.id')
+        .innerJoinAndSelect('order.status', 'status', 'order.order_status = status.id')
+        .where('order.id = :id', { id: order_id })
+        .getOne()
 
-        if (!order) {
+        if(!order) {
             throw new HttpException("This user has no orders!", HttpStatus.NOT_FOUND)
         }
 
@@ -155,22 +106,22 @@ export class ShopOrderService {
 
     async myOrders(user_id: any) {
         const orders = await this.orderRepo.createQueryBuilder('order')
-            .select([
-                'order.id',
-                'order.order_date',
-                'order.order_total',
-                'address.id',
-                'address.address_line1',
-                'address.address_line2',
-                'governorate.governorate'
-            ])
-            .innerJoin('order.address', 'address', 'order.shipping_address = address.id')
-            .innerJoin('address.governorate', 'governorate', 'address.governorate_id = governorate.id')
-            .innerJoin('order.status', 'status', 'order.order_status = status.id')
-            .where('order.user_id = :id', { id: user_id })
-            .getMany()
+        .select([
+            'order.id',
+            'order.order_date',
+            'order.order_total',
+            'address.id',
+            'address.address_line1',
+            'address.address_line2',
+            'governorate.governorate'
+        ])
+        .innerJoin('order.address', 'address', 'order.shipping_address = address.id')
+        .innerJoin('address.governorate', 'governorate', 'address.governorate_id = governorate.id')
+        .innerJoin('order.status', 'status', 'order.order_status = status.id')
+        .where('order.user_id = :id', { id: user_id })
+        .getMany()
 
-        if (!orders) {
+        if(!orders) {
             throw new HttpException("This user has no orders!", HttpStatus.NOT_FOUND)
         }
 
@@ -308,7 +259,7 @@ export class ShopOrderService {
     }
 
     private async findCart(user_id: number) {
-
+        console.log("Find Cart Function!");
         const cart = await this.cartRepo.createQueryBuilder('cart')
             .select([
                 'cart.id',
@@ -332,6 +283,18 @@ export class ShopOrderService {
         return cart;
     }
 
+    private async deleteCart(cart_id: number) {
+        const results = await this.cartRepo.createQueryBuilder()
+            .select()
+            .where('cart.id = :id', { id: cart_id })
+            .getOne();
+
+        if (!results) {
+            throw new HttpException("Could not delete cart!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return results;
+    }
+
     private async deleteCartItems(cart_id: number) {
         const results = await this.itemsRepo.createQueryBuilder()
             .delete()
@@ -343,11 +306,11 @@ export class ShopOrderService {
             throw new HttpException("Could not remove cart items!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return results;
+        return this.deleteCart(cart_id)
     }
 
     private async getUser(user_id: number) {
-
+        console.log("Get User Function!");
         const user = await this.userRepo.createQueryBuilder('user')
             .select([
                 'user.id',
@@ -375,14 +338,14 @@ export class ShopOrderService {
     }
 
     private calculateTotalPrice(item: ShoppingCartItem) {
-
+        console.log("Calculate Price Function!");
         const price = item.product.inventory.price;
         const quantity = item.quantity;
         return price * quantity;
     }
 
     private async placeToOrderLine(cart: ShoppingCart, order_id: number) {
-
+        console.log("Place Order Line Function!");
         var order_lines: OrderLine[] = [];
         var total = 0;
 

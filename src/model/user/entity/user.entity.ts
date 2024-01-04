@@ -1,9 +1,10 @@
+import { PasswordReset } from "src/model/password_reset/entity/password_reset.entity";
 import { ShopOrder } from "src/model/shop_order/entity/shop_order.entity";
 import { ShoppingCart } from "src/model/shopping_cart/entity/shopping_cart.entity";
 import { UserAddress } from "src/model/user_address/entity/user_address.entity";
 import { UserPayment } from "src/model/user_payment/entity/user_payment.entity";
 import { UserType } from "src/model/user_type/entity/user_type.entity";
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn, OneToOne, ManyToMany, ManyToOne } from "typeorm"
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -57,5 +58,8 @@ export class User {
 
     @OneToMany(() => ShoppingCart, cart => cart.user)
     carts: ShoppingCart[];
+
+    @OneToOne(() => PasswordReset, password_reset => password_reset.user)
+    password_reset: PasswordReset;
 
 }

@@ -7,9 +7,10 @@ import { ShopOrder } from './entity/shop_order.entity';
 import { ShopOrderController } from './shop_order.controller';
 import { ShopOrderService } from './shop_order.service';
 import { OrderLine } from '../order_line/entity/order_line.entity';
+import { UserAddress } from '../user_address/entity/user_address.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, ShopOrder, OrderLine, ShoppingCart, ShoppingCartItem])],
+  imports: [TypeOrmModule.forFeature([User, UserAddress, ShopOrder, OrderLine, ShoppingCart, ShoppingCartItem])],
   providers: [ShopOrderService],
   controllers: [ShopOrderController]
 })

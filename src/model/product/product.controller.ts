@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, Query } from '@nestjs/common';
 import { FilterQueries } from './dto/filter_queries.dto';
 import { ProductService } from './product.service';
 
@@ -14,6 +14,10 @@ export class ProductController {
 
     @Get('search')
     searchForProducts(@Query('query') name: string) {
+        if(!name) {
+            throw new HttpException("You didn't provide the query!", HttpStatus.BAD_REQUEST);
+        }
+        
         return this.service.search(name);
     }
 
@@ -26,11 +30,6 @@ export class ProductController {
     getNewArrivals() {
         return this.service.getNewArrivals();
     }
-
-    // @Get('best-seller')
-    // getBestSeller() {
-    //     return this.service.getBestSeller();
-    // }
 
     @Get('filter')
     filterProducts(

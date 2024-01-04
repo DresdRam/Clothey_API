@@ -31,7 +31,7 @@ export class ProductService {
 
         const formatted_query = search_query.replace(' ', '%');
 
-        const products = await this.repo.createQueryBuilder('p')
+        const query = this.repo.createQueryBuilder('p')
             .select([
                 'p.id',
                 'p.name',
@@ -42,14 +42,17 @@ export class ProductService {
             .innerJoin('p.inventory', 'i', 'p.inventory_id = i.id')
             .innerJoinAndSelect('i.category', 'c', 'i.category_id = c.id')
             .innerJoinAndSelect('i.type', 't', 'i.type_id = t.id')
-            .where('p.name LIKE :name', { name: `%${formatted_query}%` })
-            .getMany();
+            .where('p.name LIKE :name', { name: `%${formatted_query}%` });
+
+        const products = await query.getMany();
 
         if (!products || products.length == 0) {
             throw new HttpException("There is no products with that search query!", HttpStatus.NOT_FOUND)
         }
-
-        return this.reformatPromotedProducts(products);
+        
+        const count = await query.getCount();
+        const reformed = this.reformatPromotedProducts(products);
+        return this.reformatPages(reformed, count);
     }
 
 
@@ -67,7 +70,7 @@ export class ProductService {
             .innerJoinAndSelect('i.category', 'c', 'i.category_id = c.id')
             .innerJoinAndSelect('i.type', 't', 'i.type_id = t.id')
             .leftJoinAndSelect('p.promotion', 'pr', 'pr.product_id = p.id')
-            .take(20)
+            .take(6)
             .getMany();
 
         if (!products || products.length == 0) {
@@ -106,16 +109,18 @@ export class ProductService {
                 query_builder.skip((filters.page - 1) * filters.size);
             }
         } else {
-            query_builder.take(20)
+            query_builder.take(12)
             if (filters.page) {
-                query_builder.skip((filters.page - 1) * 20);
+                query_builder.skip((filters.page - 1) * 12);
             }
         }
 
+        const count = await query_builder.getCount();
         const products = await query_builder.getMany();
         const promoted_products = this.reformatPromotedProducts(products)
+        const images_products = this.reformatSecondaryImagesForMany(promoted_products);
 
-        return this.reformatSecondaryImagesForMany(promoted_products);
+        return this.reformatPages(images_products, count);
 
     }
 
@@ -133,7 +138,7 @@ export class ProductService {
             .innerJoinAndSelect('i.type', 't', 'i.type_id = t.id')
             .leftJoinAndSelect('p.promotion', 'pr', 'pr.product_id = p.id')
             .orderBy('p.id', 'DESC')
-            .take(8)
+            .take(6)
             .getMany();
 
         if (!products || products.length == 0) {
@@ -173,6 +178,17 @@ export class ProductService {
             json_product.new_price = new_price;
         }
         return json_product;
+    }
+
+    private reformatPages(products: Product[], count: number, size: number = 12) {
+        const json: any = {};
+        var pages = Math.floor(count / size);
+        if(count % size != 0) {
+            pages++;
+        }
+        json.pages = pages;
+        json.products = products;
+        return json;
     }
 
     reformatSecondaryImagesForMany(products: Product[]) {

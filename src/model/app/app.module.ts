@@ -37,6 +37,8 @@ import { PromotionModule } from '../promotion/promotion.module';
 import { Promotion } from '../promotion/entity/promotion.entity';
 import { OrderLine } from '../order_line/entity/order_line.entity';
 import { OrderLineModule } from '../order_line/order_line.module';
+import { PasswordResetModule } from '../password_reset/password_reset.module';
+import { PasswordReset } from '../password_reset/entity/password_reset.entity';
 
 @Module({
   imports: [
@@ -72,7 +74,8 @@ import { OrderLineModule } from '../order_line/order_line.module';
             ShopOrder,
             OrderLine,
             ShoppingCart,
-            ShoppingCartItem
+            ShoppingCartItem,
+            PasswordReset
           ]
         }
       }
@@ -95,6 +98,7 @@ import { OrderLineModule } from '../order_line/order_line.module';
     ShoppingCartModule,
     ShoppingCartItemModule,
     OrderLineModule,
+    PasswordResetModule
   ]
 })
 export class AppModule {
