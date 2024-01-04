@@ -262,7 +262,10 @@ export class UserService {
 
         this.resetService.create(user.id, reset_code);
 
-        return reset_code;
+        return {
+            statusCode: HttpStatus.OK,
+            message: "Sent reset code successfuly."
+        }
     }
 
     async confirmResetCode(body: ConfirmResetCodeDto) {
