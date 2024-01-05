@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/model/user/entity/user.entity';
 import { Repository } from 'typeorm';
 import { PasswordReset } from './entity/password_reset.entity';
-import { ResetPasswordDto } from 'src/model/user/dto/reset_password.dto';
 
 @Injectable()
 export class PasswordResetService {

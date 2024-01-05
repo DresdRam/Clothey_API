@@ -162,6 +162,7 @@ export class ShopOrderService {
                 'address.id',
                 'address.address_line1',
                 'address.address_line2',
+                'address.building_number',
                 'governorate.governorate'
             ])
             .innerJoin('order.address', 'address', 'order.shipping_address = address.id')
@@ -282,6 +283,7 @@ export class ShopOrderService {
                 'address.id',
                 'address.address_line1',
                 'address.address_line2',
+                'address.building_number',
                 'line.id',
                 'line.quantity',
                 'line.price',
