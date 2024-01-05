@@ -32,7 +32,7 @@ export class UserAddressService {
         .insert()
         .into(UserAddress)
         .values([
-            { user: user, governorate: governorate, address_line1: insertAddress.address_line1, address_line2: insertAddress.address_line2, postal_code: insertAddress.postal_code }
+            { user: user, governorate: governorate, address_line1: insertAddress.address_line1, address_line2: insertAddress.address_line2, building_number: insertAddress.building_number }
         ])
         .execute()
 
@@ -58,7 +58,7 @@ export class UserAddressService {
             governorate: governorate,
             address_line1: updateAddress.address_line1,
             address_line2: updateAddress.address_line2,
-            postal_code: updateAddress.postal_code
+            building_number: updateAddress.building_number
         })
         .where('id = :address_id', { address_id: updateAddress.address_id })
         .execute()

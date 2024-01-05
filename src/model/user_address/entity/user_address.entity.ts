@@ -24,7 +24,7 @@ export class UserAddress {
     @Column({
         nullable: false
     })
-    postal_code: string;
+    building_number: string;
 
     @ManyToOne(() => User, user => user.addresses)
     @JoinColumn({ name: 'user_id' })

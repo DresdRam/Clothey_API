@@ -13,6 +13,6 @@ export class PlaceOrderDto {
     address_line2: string;
     
     @IsString()
-    postal_code: string;
+    building_number: string;
 
 }

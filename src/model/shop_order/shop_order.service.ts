@@ -77,7 +77,7 @@ export class ShopOrderService {
                         governorate: governorate,
                         address_line1: body.address_line1,
                         address_line2: body.address_line2,
-                        postal_code: body.postal_code
+                        building_number: body.building_number
                     }
                 )
                 .where('id = :id', { id: address.id })
@@ -97,7 +97,7 @@ export class ShopOrderService {
                         governorate: governorate,
                         address_line1: body.address_line1,
                         address_line2: body.address_line2,
-                        postal_code: body.postal_code
+                        building_number: body.building_number
                     }
                 ])
                 .execute();
