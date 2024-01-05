@@ -27,37 +27,40 @@ export class ShopOrderService {
 
     async placeOrder(body: PlaceOrderDto, user_id: number) {
 
-        this.setupUserAddress(body, user_id)
-        const user = await this.getUser(user_id);
-        const cart = await this.findCart(user_id);
+        const address = await this.setupUserAddress(body, user_id);
+        if (address) {
+            const user = await this.getUser(user_id);
+            const cart = await this.findCart(user_id);
 
-        const insert_into_orders = await this.orderRepo.createQueryBuilder()
-            .insert()
-            .into(ShopOrder)
-            .values([
-                { user: user, payment: user.payments.at(0), address: user.addresses.at(0), order_total: 0 }
-            ])
-            .execute();
+            const insert_into_orders = await this.orderRepo.createQueryBuilder()
+                .insert()
+                .into(ShopOrder)
+                .values([
+                    { user: user, payment: user.payments.at(0), address: user.addresses.at(0), order_total: 0 }
+                ])
+                .execute();
 
-        const total_price = await this.placeToOrderLine(cart, insert_into_orders.raw.insertId);
+            const total_price = await this.placeToOrderLine(cart, insert_into_orders.raw.insertId);
 
-        const update_total_price = await this.orderRepo.createQueryBuilder()
-            .update()
-            .set({ order_total: total_price })
-            .where('id = :id', { id: insert_into_orders.raw.insertId })
-            .execute();
+            const update_total_price = await this.orderRepo.createQueryBuilder()
+                .update()
+                .set({ order_total: total_price })
+                .where('id = :id', { id: insert_into_orders.raw.insertId })
+                .execute();
 
-        if (!update_total_price) {
-            throw new HttpException("Could not complete order!", HttpStatus.INTERNAL_SERVER_ERROR);
+            if (!update_total_price) {
+                throw new HttpException("Could not complete order!", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            this.deleteCartItems(cart.id);
+
+            return {
+                statusCode: HttpStatus.CREATED,
+                message: "Placed Order Successfuly."
+            }
+        } else {
+            throw new HttpException("Could not create address for this user!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        this.deleteCartItems(cart.id);
-
-        return {
-            statusCode: HttpStatus.CREATED,
-            message: "Placed Order Successfuly."
-        }
-
     }
 
     async setupUserAddress(body: PlaceOrderDto, user_id: number) {
@@ -70,7 +73,7 @@ export class ShopOrderService {
             const governorate = new Governorate();
             governorate.id = body.governorate_id;
 
-            await this.addressRepo.createQueryBuilder()
+            return await this.addressRepo.createQueryBuilder()
                 .update()
                 .set(
                     {
@@ -88,7 +91,7 @@ export class ShopOrderService {
             governorate.id = body.governorate_id;
             user.id = user_id;
 
-            await this.addressRepo.createQueryBuilder()
+            return await this.addressRepo.createQueryBuilder()
                 .insert()
                 .into(UserAddress)
                 .values([
