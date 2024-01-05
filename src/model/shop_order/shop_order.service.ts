@@ -28,6 +28,7 @@ export class ShopOrderService {
     async placeOrder(body: PlaceOrderDto, user_id: number) {
 
         const address = await this.setupUserAddress(body, user_id);
+        console.log(JSON.stringify(address));
         if (address) {
             const user = await this.getUser(user_id);
             const cart = await this.findCart(user_id);
@@ -73,7 +74,7 @@ export class ShopOrderService {
             const governorate = new Governorate();
             governorate.id = body.governorate_id;
 
-            return await this.addressRepo.createQueryBuilder()
+            const res = await this.addressRepo.createQueryBuilder()
                 .update()
                 .set(
                     {
@@ -85,13 +86,16 @@ export class ShopOrderService {
                 )
                 .where('id = :id', { id: address.id })
                 .execute();
+                console.log(JSON.stringify(res));
+
+                return res;
         } else {
             const user = new User();
             const governorate = new Governorate();
             governorate.id = body.governorate_id;
             user.id = user_id;
 
-            return await this.addressRepo.createQueryBuilder()
+            const res = await this.addressRepo.createQueryBuilder()
                 .insert()
                 .into(UserAddress)
                 .values([
@@ -104,6 +108,9 @@ export class ShopOrderService {
                     }
                 ])
                 .execute();
+                console.log(JSON.stringify(res));
+
+                return res;
         }
     }
 
