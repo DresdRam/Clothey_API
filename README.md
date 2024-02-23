@@ -57,7 +57,7 @@ Change the .env file values so it can be suitable for your database.
 - **MAIL_USER**
 - **MAIL_PASSWORD**
 - **JWT_SECRET**
-- 
+
 ## Run Locally
 
 Start the Nest.js development server:
