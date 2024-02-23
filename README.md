@@ -46,12 +46,18 @@ yarn
 
 Change the .env file values so it can be suitable for your database.
 
-- **TYPE**
-- **HOST**
-- **PORT**
+- **DATABASE_TYPE**
+- **DATABASE_HOST**
+- **DATABASE_PORT**
 - **DATABASE_USERNAME**
 - **DATABASE_PASSWORD**
 - **DATABASE_NAME**
+- **MAIL_HOST**
+- **MAIL_PORT**
+- **MAIL_USER**
+- **MAIL_PASSWORD**
+- **JWT_SECRET**
+- 
 ## Run Locally
 
 Start the Nest.js development server:
