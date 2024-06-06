@@ -7,7 +7,7 @@ let port: number;
 let host: string;
 
 if (developement == 0) {
-  port = process.env.PORT || 3026;
+  port = parseInt(process.env.PORT) ?? 3026
   host = "0.0.0.0"
 } else {
   port = 3026
